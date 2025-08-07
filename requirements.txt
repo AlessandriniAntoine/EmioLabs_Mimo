@@ -1,0 +1,14 @@
+numpy~=1.26.4, <2.0
+scipy~=1.15.2
+pyserial~=3.5
+gmsh~=4.13.1
+svg.path~=6.3
+dynamixel-sdk~=3.7.31
+qpsolvers[clarabel,proxqp]~=4.6.0
+opencv-python~=4.11.0.86
+--find-links https://github.com/cansik/pyrealsense2-macosx/releases; 
+pyrealsense2~=2.55; platform_system == "Windows" or platform_system == "Linux"
+pyrealsense2-macosx; platform_system == "Darwin"
+pillow~=11.2.1
+emioapi @ git+https://github.com/SofaComplianceRobotics/Emio.API.git@3907abd7689ff9f88302d34a7fd5ef8b905f1b2d
+control==0.10.2
