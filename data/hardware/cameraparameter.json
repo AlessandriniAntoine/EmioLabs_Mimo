@@ -1,1 +1,10 @@
-{"hue_h": 70, "hue_l": 33, "sat_h": 220, "sat_l": 60, "value_h": 255, "value_l": 67, "erosion_size": 0, "area": 80}
+{
+  "hue_h": 70,
+  "hue_l": 40,
+  "sat_h": 220,
+  "sat_l": 60,
+  "value_h": 255,
+  "value_l": 67,
+  "erosion_size": 0,
+  "area": 80
+}

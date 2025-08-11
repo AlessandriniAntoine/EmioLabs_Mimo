@@ -78,16 +78,8 @@ def perform_observer_design():
     if obsv_rank != A.shape[0]:
         raise ValueError(f"System is not observable: rank {obsv_rank}, expected {A.shape[0]}.")
 
-    # Display open-loop eigenvalues
-    eig_open = np.linalg.eigvals(A)
-    print(f"Open-loop eigenvalue magnitudes: {np.abs(eig_open)}")
-
     # Design observer
     L = design_observer(A, C)
-
-    # Display observer eigenvalues
-    eig_obs = np.linalg.eigvals(A - L @ C)
-    print(f"Observer eigenvalue magnitudes: {np.abs(eig_obs)}")
 
     # Save observer
     np.savez(os.path.join(control_path, f"order{args.order}_obs.npz"),

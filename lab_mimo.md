@@ -326,7 +326,9 @@ This setup will first be implemented in SOFA, which provides the system dynamics
 
 In a second step, the same control law can be deployed on the real robot. The observer will estimate the state based on measured outputs (e.g., marker positions), and the computed control input $u$ will be applied to the motors.
 
-#runsofa-button("assets/labs/EmioLabs_Mimo/lab_mimo.py" "--controller" "closedloop" "--framerate" "fps" "--motorCutoffFreq" "cutoffFreq" "--motorsInit" "motor1Init" "motor2Init" "--motorsMin" "motor1Min" "motor2Min" "--motorsMax" "motor1Max" "motor2Max" "--order" "order" "--useObserver" "True" "--realRobot" "1")
+```bash
+$ python scripts/hardware.py --motorCutoffFreq cutoffFreq --motorsInit motor1Init motor2Init --motorsMin motor1Min motor2Min --motorsMax motor1Max motor2Max --order order
+```
 
 ::: highlight
 #icon("warning") Insight:

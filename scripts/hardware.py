@@ -5,6 +5,7 @@ import numpy as np
 import tkinter as tk
 import multiprocessing
 import cv2 as cv
+
 from emioapi import EmioMotors
 from emioapi._depthcamera import DepthCamera
 
@@ -12,8 +13,50 @@ lab_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 data_path = os.path.join(lab_path, "data")
 
 
-nbMarkers = 3
+nbMarkers = 3  # Number of markers to track
 ControlMode = {"Open Loop": False, "Closed Loop": True}
+
+def getListFromArgs(args):
+    if isinstance(args, list):
+        return args
+    if isinstance(args, str) and args:
+        argsList = []
+        for name in args.split(" "):
+            argsList += [name]
+        return argsList
+    return None
+
+def arg_parse():
+    import sys
+    import argparse
+    parser = argparse.ArgumentParser(prog=sys.argv[0],
+                                     description='Simulate two legs.')
+
+    parser.add_argument('-mi', '--motorsInit', type=str, nargs='*',
+                        help="Initial values for the motors (in radians). ",
+                        default='0.', dest="motorsInit")
+    parser.add_argument('-mx', '--motorsMax', type=str, nargs='*',
+                        help="Maximum values for the motors (in radians). ",
+                        default='1.57', dest="motorsMax")
+    parser.add_argument('-mn', '--motorsMin', type=str, nargs='*',
+                        help="Minimum values for the motors (in radians). ",
+                        default='-1.57', dest="motorsMin")
+    parser.add_argument("--motorCutoffFreq", type=str,
+                        help="Motor cutoff frequency",
+                        default='20.', dest="motorCutoffFreq")
+
+    parser.add_argument('--order', type=str,
+                        help="Specify the order of the reduction",
+                        default='7', dest="order")
+
+
+    try:
+        args = parser.parse_args()
+    except SystemExit:
+        Sofa.msg_error(sys.argv[0], "Invalid arguments, get defaults instead.")
+        args = parser.parse_args([])
+
+    return args
 
 ###########################################################################
 # TKINTER APP
@@ -208,7 +251,6 @@ def processCamera(trackerPos, event):
         parameter=json_parameters)
     while True:
         camera.update()
-        print(f"Size of trackers_pos: {len(camera.trackers_pos)}")
         if len(camera.trackers_pos) == nbMarkers:
             with trackerPos.get_lock():
                 trackerPos[:] = np.array(camera.trackers_pos).flatten()
@@ -229,6 +271,7 @@ def processSlider(sharedMotorsPos, sharedRefPos,
 
 def processController(trackerPos, sharedMotorsPos, sharedRefPos, sharedStart, sharedControlMode, sharedRecord, sharedSave, event):
 
+    args = arg_parse()
     motors = EmioMotors()
     while not motors.open():
         print("Waiting for motors to open...")
@@ -240,16 +283,24 @@ def processController(trackerPos, sharedMotorsPos, sharedRefPos, sharedStart, sh
     maxRecord = 400
     start = False
     cutoffFreqMeasure = 90.  # Hz
-    cutoffFreqMotor = 10.  # Hz
+    cutoffFreqMotor = float(args.motorCutoffFreq)  # Hz
     samplingFreq = 60.  # Hz
 
     # Motors Limits
-    initAngle = 0.25 * np.pi  # rad
-    upperAngle = 0.8 * np.pi / 2
-    lowerAngle = - np.pi / 4
+    motorsInit = [float(x) for x in getListFromArgs(args.motorsInit)]
+    motorsMin = [-float(x) for x in getListFromArgs(args.motorsMin)]
+    motorsMax = [float(x) for x in getListFromArgs(args.motorsMax)]
+
+    if len(motorsInit) != 2:
+        motorsInit = [motorsInit[0], motorsInit[0]]
+    if len(motorsMax) != 2:
+        motorsMax = [motorsMax[0], motorsMax[0]]
+    if len(motorsMin) != 2:
+        motorsMin = [motorsMin[0], motorsMin[0]]
+
 
     # control data
-    order = 4
+    order = int(args.order)
     modelPath = os.path.join(data_path, "models", f"order{order}.npz")
     controlPath = os.path.join(data_path, "control", f"order{order}.npz")
     observerPath = os.path.join(data_path, "control", f"order{order}_obs.npz")
@@ -273,9 +324,6 @@ def processController(trackerPos, sharedMotorsPos, sharedRefPos, sharedStart, sh
     L = dataObs["observerGain"]
     observerState = np.zeros((2*order, 1))
 
-    # transformation matrix
-    tfMatrix = np.load(os.path.join(data_path, "hardware", "camera2sofa.npz"))["transform"]
-
     # Initialize variables
     initialMarkersPos = np.zeros((3*nbMarkers, ))
     measureFiltered = np.zeros((3*nbMarkers, ))
@@ -293,7 +341,9 @@ def processController(trackerPos, sharedMotorsPos, sharedRefPos, sharedStart, sh
     observerOutputList = []
     controlModeList = []
 
-    motors.angles = [initAngle, 0, initAngle, 0]
+    motors.angles = [motorsInit[0], 0, motorsInit[1], 0]
+    print(f"Motors initialized to {motors.angles}")
+
 
     while True:
         event.wait()
@@ -305,10 +355,10 @@ def processController(trackerPos, sharedMotorsPos, sharedRefPos, sharedStart, sh
 
         # order the markers
         pos = measure.reshape(nbMarkers, 3)
-        i_xmax = np.argmax(pos[:, 0])
-        i_rest = [i for i in range(nbMarkers) if i != i_xmax]
-        i_sorted_y = sorted(i_rest, key=lambda i: pos[i, 1])
-        new_order = [i_sorted_y[1], i_xmax, i_sorted_y[0]]
+        i_ymin = np.argmax(pos[:, 1])
+        i_rest = [i for i in range(nbMarkers) if i != i_ymin]
+        i_sorted_z = sorted(i_rest, key=lambda i: pos[i, 2])
+        new_order = [i_sorted_z[1], i_ymin, i_sorted_z[0]]
         pos_sorted = pos[new_order]
         measure = pos_sorted.flatten()
 
@@ -318,8 +368,8 @@ def processController(trackerPos, sharedMotorsPos, sharedRefPos, sharedStart, sh
 
         angles = motors.angles
         if angles is not None:
-            currentMotorsPos = np.array([angles[0], angles[2]]) - initAngle
-            # print(f"Current motors position: {currentMotorsPos}")
+            currentMotorsPos = np.array([angles[0] - motorsInit[0],
+                                         angles[2] - motorsInit[1]])
 
         if start:
             markersPos = measureFiltered - initialMarkersPos
@@ -327,8 +377,9 @@ def processController(trackerPos, sharedMotorsPos, sharedRefPos, sharedStart, sh
                 print("Filtering markers ...")
                 markersPos = markersPosPrev.copy()
 
-            output = (tfMatrix @ markersPos.reshape(-1,1))[[x for i in range(nbMarkers) for x in [3*i+1, 3*i+2]]]
-            outputPrev = (tfMatrix @ markersPosPrev.reshape(-1,1))[[x for i in range(nbMarkers) for x in [3*i+1, 3*i+2]]]
+
+            output = (markersPos.reshape(-1,1))[[x for i in range(nbMarkers) for x in [3*i+1, 3*i+2]]]
+            outputPrev = (markersPosPrev.reshape(-1,1))[[x for i in range(nbMarkers) for x in [3*i+1, 3*i+2]]]
 
             # observer update
             cmd = np.array([currentMotorsPos]).reshape(-1, 1)
@@ -343,15 +394,16 @@ def processController(trackerPos, sharedMotorsPos, sharedRefPos, sharedStart, sh
             else:
                 command = G @ ref - K @ observerState
                 command = command.flatten()
+                # print(f"Command: {command}")
 
 
 
             # apply the motor position
             motorsPos = filterFirstOder(command, motorsPos, cutoffFreq=cutoffFreqMotor, samplingFreq=samplingFreq)
-            motorsPos = np.clip(motorsPos, lowerAngle, upperAngle)
-            dxlCommand = motorsPos + initAngle
+            motorsPos = np.clip(motorsPos, motorsMin, motorsMax)
             if (motorsPosPrev - motorsPos).any():
-                motors.angles = [dxlCommand[0], 0, dxlCommand[1], 0]
+                motors.angles = [motorsInit[0] + motorsPos[0], 0,
+                                 motorsInit[1] + motorsPos[1], 0]
                 motorsPosPrev = motorsPos
 
             # save the data
