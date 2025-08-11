@@ -28,7 +28,7 @@ def design_observer(A, C):
     # Observer design is dual: use A.T, C.T, Q, R
     # TODO: Compute observer gain L
     Q = 1e2 * np.eye(A.shape[0])
-    R = 1e2 * np.eye(C.shape[0])
+    R = 1e1 * np.eye(C.shape[0])
     Lt, _, _ =  ct.dlqr(A.T, C.T, Q, R)
     L = Lt.T
 
