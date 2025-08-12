@@ -18,7 +18,7 @@ This lab relies on linear algebra and control theory. It is recommended to check
 ## Set up Emio
 
 In this lab session, we will use only the following configuration: Emio with two <span style="color:rgba(200, 0, 200, 1);">*magenta legs*</span>,
-the <span style="color:grey">*grey mass*</span>, and the <span style="color:green">*green marker*</span>. We also use the **FEM** modeling of the leg to simulate the dynamics of the system.
+the <span style="color:grey">*grey mass*</span>, and the <span style="color:green">*green marker*</span>. We also use the **FEM** modeling of the legs to simulate the dynamics of the system.
 
 ![](assets/data/images/lab6-setup-emio.png){width=75% .center}
 :::

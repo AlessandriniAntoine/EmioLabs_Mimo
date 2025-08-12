@@ -1,7 +1,8 @@
 # EmioLabs_Mimo
-Labs for dynamic control of Emio with Multiple-Input Multiple-Output
+Labs for dynamic control of Emio with Multiple-Input Multiple-Output.
 
 Emio is a robotic platform designed for educational purposed by [Compliance Robotics](https://compliance-robotics.com/compliance-lab/).
+This lab is higly related to the lab with Single-Input Single-Output (SISO) control, which can be found in the [EmioLabs_Siso](https://github.com/AlessandriniAntoine/EmioLabs_Siso)
 
 # Installation
 An additional python package ([control](https://python-control.readthedocs.io/en/0.10.2/)) is required to run the labs. Is it included in the `requirements.txt` file. To install it, run the following command:
