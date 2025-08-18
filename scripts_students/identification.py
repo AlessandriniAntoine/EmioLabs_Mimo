@@ -52,9 +52,6 @@ def identify_model(states, inputs, outputs, reduced_positions, r):
 
 lab_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 data_path = os.path.join(lab_path, "data")
-model_path = os.path.join(data_path, "models")
-if not os.path.exists(model_path):
-    os.makedirs(model_path, exist_ok=True)
 
 def get_parser_args():
     parser = argparse.ArgumentParser(description='Identify a reduced state-space model.')
@@ -70,7 +67,7 @@ def perform_identification():
     args = get_parser_args()
 
     # Load recorded data
-    openloop_path = os.path.join(data_path, "sofa", "openLoop.npz")
+    openloop_path = os.path.join(data_path, "sofa_openLoop.npz")
     if not os.path.exists(openloop_path):
         raise FileNotFoundError(f"Data file not found at: {openloop_path}. Please run the open-loop simulation first.")
     data = np.load(openloop_path)
@@ -81,7 +78,7 @@ def perform_identification():
     inputs = data["motorsPos"].T
 
     # Load reduction matrix
-    reduction_file = os.path.join(data_path, "reduction", f"order{args.order}.npz")
+    reduction_file = os.path.join(data_path, f"reduction_order{args.order}.npz")
     if not os.path.exists(reduction_file):
         raise FileNotFoundError(f"Reduction file not found at: {reduction_file}. Please run the reduction script first.")
     red = np.load(reduction_file)
@@ -140,7 +137,7 @@ def perform_identification():
     plt.show()
 
     # Save model
-    np.savez(os.path.join(model_path, f"order{args.order}.npz"),
+    np.savez(os.path.join(data_path, f"model_order{args.order}.npz"),
              stateMatrix=A,
              inputMatrix=B,
              outputMatrix=C)

@@ -45,10 +45,7 @@ def design_observer(A, C):
 
 lab_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 data_path = os.path.join(lab_path, "data")
-model_path = os.path.join(data_path, "models")
-control_path = os.path.join(data_path, "control")
-if not os.path.exists(control_path):
-    os.makedirs(control_path, exist_ok=True)
+
 
 def get_parser_args():
     parser = argparse.ArgumentParser(description='Design an observer.')
@@ -64,7 +61,7 @@ def perform_observer_design():
     args = get_parser_args()
 
     # Load identified model
-    model_file = os.path.join(model_path, f"order{args.order}.npz")
+    model_file = os.path.join(data_path, f"model_order{args.order}.npz")
     if not os.path.exists(model_file):
         raise FileNotFoundError(f"Model file not found: {model_file}. Please run identification first.")
     model = np.load(model_file)
@@ -88,7 +85,7 @@ def perform_observer_design():
     print(f"Observer eigenvalue magnitudes: {np.abs(eig_obs)}")
 
     # Save observer
-    np.savez(os.path.join(control_path, f"order{args.order}_obs.npz"),
+    np.savez(os.path.join(data_path, f"observer_order{args.order}.npz"),
              observerGain=L)
 
 # Optional SOFA interface

@@ -238,7 +238,7 @@ def filterFirstOder(signal, signalFiltered, cutoffFreq=1., samplingFreq=60.):
 #############################################################################
 def processCamera(trackerPos, event):
     """Update tracker position."""
-    json_path = os.path.join(data_path, "hardware", "cameraparameter.json")
+    json_path = os.path.join(data_path, "cameraparameter.json")
     if not os.path.exists(json_path):
         raise FileNotFoundError(f"Camera parameter file not found at {json_path}")
     with open(json_path, 'r') as fp:
@@ -301,9 +301,9 @@ def processController(trackerPos, sharedMotorsPos, sharedRefPos, sharedStart, sh
 
     # control data
     order = int(args.order)
-    modelPath = os.path.join(data_path, "models", f"order{order}.npz")
-    controlPath = os.path.join(data_path, "control", f"order{order}.npz")
-    observerPath = os.path.join(data_path, "control", f"order{order}_obs.npz")
+    modelPath = os.path.join(data_path, f"model_order{order}.npz")
+    controlPath = os.path.join(data_path, f"controller_order{order}.npz")
+    observerPath = os.path.join(data_path, f"observer_order{order}.npz")
     if not os.path.exists(modelPath):
         raise FileNotFoundError(f"Model data file {modelPath} does not exist. Please run the identification script first.")
     if not os.path.exists(controlPath):
@@ -431,7 +431,7 @@ def processController(trackerPos, sharedMotorsPos, sharedRefPos, sharedStart, sh
 
         if sharedSave.value:
             print("Data saved...")
-            np.savez(os.path.join(data_path, "hardware", "closedLoop.npz"),
+            np.savez(os.path.join(data_path, "hardware_closedLoop.npz"),
                 markersPos=markersPositions,
                 motorsPos=motorsPositions,
                 reference=referenceList,

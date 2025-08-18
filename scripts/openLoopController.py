@@ -32,7 +32,7 @@ class OpenLoopController(BaseController):
     def save(self):
         print("Saving data...")
         np.savez(
-            os.path.join(data_path, "sofa", "openLoop.npz"),
+            os.path.join(data_path, "sofa_openLoop.npz"),
             legsVel=np.array(self.legsVelList).reshape(len(self.legsVelList), self.legsVelList[0].shape[0]),
             legsPos=np.array(self.legsPosList).reshape(len(self.legsPosList), self.legsPosList[0].shape[0]),
             markersPos=np.array(self.markersPosList).reshape(len(self.markersPosList), self.markersPosList[0].shape[0]),

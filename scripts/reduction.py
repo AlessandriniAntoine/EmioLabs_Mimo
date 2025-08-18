@@ -55,7 +55,7 @@ def reduction(data, mode=0, order=7):
         # TODO: Complete this part
         R = np.block([[T, np.zeros_like(T)], [np.zeros_like(T), T]])
 
-        save_path = os.path.join(reduction_path, f"order{order}.npz")
+        save_path = os.path.join(data_path, f"reduction_order{order}.npz")
         np.savez(save_path, reductionMatrix=R, reductionMatrixPos=T)
 
     else:
@@ -66,9 +66,7 @@ def reduction(data, mode=0, order=7):
 ####################################################################################
 lab_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 data_path = os.path.join(lab_path, "data")
-reduction_path = os.path.join(data_path, "reduction")
-if not os.path.exists(reduction_path):
-    os.makedirs(reduction_path, exist_ok=True)
+
 
 # Argument parser
 def get_parser_args():
@@ -89,7 +87,7 @@ def perform_reduction():
     args = get_parser_args()
 
     # Load data
-    npz_path = os.path.join(data_path, "sofa", "openLoop.npz")
+    npz_path = os.path.join(data_path, "sofa_openLoop.npz")
     if not os.path.exists(npz_path):
         raise FileNotFoundError(f"Data file not found at: {npz_path}. Please run the open-loop simulation first.")
 
