@@ -254,8 +254,6 @@ def createScene(rootnode):
     ##############################################################################
     # Emio Gui
     ##############################################################################
-
-
     # Open Loop
     if args.controller == "openloop":
         from scripts.openLoopController import OpenLoopController

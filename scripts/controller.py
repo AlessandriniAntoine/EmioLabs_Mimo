@@ -36,7 +36,7 @@ def design_controller(A, B, C):
 
     # === Step 2: Compute the feedback gain K ===
     # TODO: Use one of the methods to compute the state feedback gain K
-    Q = C.T @ (5e-1 * np.eye(C.shape[0])) @ C
+    Q = C.T @ (1e1 * np.eye(C.shape[0])) @ C
     R = 1e4 * np.eye(B.shape[1])
     K, _, _ = ct.dlqr(A, B, Q, R)
 
