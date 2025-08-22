@@ -1,5 +1,6 @@
 from .baseController import *
 
+
 class OpenLoopController(BaseController):
     def __init__(self, legs, motors, markers, load, motorsInit, motorsMin, motorsMax, cutoffFreq):
         super().__init__(legs, motors, markers, load, motorsInit, motorsMin, motorsMax, cutoffFreq)

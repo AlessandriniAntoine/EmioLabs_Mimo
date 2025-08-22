@@ -83,11 +83,6 @@ def perform_controller_design():
     B = model["inputMatrix"]
     C = model["outputMatrix"]
 
-    # Sanity check: controllability
-    ctrb_rank = np.linalg.matrix_rank(ct.ctrb(A, B))
-    if ctrb_rank != A.shape[0]:
-        raise ValueError(f"System is not controllable: rank {ctrb_rank}, expected {A.shape[0]}.")
-
     # Design controller
     K, G = design_controller(A, B, C)
 

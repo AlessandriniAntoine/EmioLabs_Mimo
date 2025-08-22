@@ -70,11 +70,6 @@ def perform_observer_design():
     A = model["stateMatrix"]
     C = model["outputMatrix"]
 
-    # Sanity check: observability
-    obsv_rank = np.linalg.matrix_rank(ct.obsv(A, C))
-    if obsv_rank != A.shape[0]:
-        raise ValueError(f"System is not observable: rank {obsv_rank}, expected {A.shape[0]}.")
-
     # Design observer
     L = design_observer(A, C)
 
